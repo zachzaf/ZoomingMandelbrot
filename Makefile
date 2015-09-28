@@ -1,7 +1,7 @@
 CC = gcc
 
 # Read the config of SDL using the sdl-config tool
-LIBS = $(shell sdl-config --libs)
+LIBS = $(shell sdl-config --libs) -lm
 CFLAGS = $(shell sdl-config --cflags) -Iincludes
 
 MAIN = main

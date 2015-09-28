@@ -14,7 +14,7 @@
 SDL_Surface *screen;
 int sizeX; //= 1024;
 int sizeY; //= 576;
-int max_iteration = 1000;
+int max_iteration = 100;
 
 struct complex
 {
@@ -29,37 +29,35 @@ void putpixel(int x, int y, int color)
   ptr[lineoffset + x] = color;
 }
 
-int mandelbrotCalc(struct complex c)
+int mandelbrotCalc(struct complex z, struct complex c, int iteration)
 {
-  struct complex z_next, z = {0,0};
-  double z_abs;
-  int iteration = 0;
+  struct complex z_next;
+  double z_next_abs;
 
-  z.real = pow(z.real,2) - pow(z.imag,2) + c.real;
-  z.imag = 2*z.real*z.imag + c.imag;
+  z_next.real = ( pow(z.real,2) - pow(z.imag,2) + c.real );
+  z_next.imag = 2*z.real*z.imag + c.imag;
 
-  z_abs = pow(z.real,2) + pow(z.imag,2);
+  z_next_abs = pow(z_next.real,2) + pow(z.imag,2);
 
-  /* Comparing with 4 in order to avoid using sqrt */
-  while ( (z_abs < 4) && (iteration < max_iteration) )
-  {
-    z.real = pow(z.real,2) - pow(z.imag,2) + c.real;
-    z.imag = 2*z.real*z.imag + c.imag;
-    z_abs = pow(z.real,2) + pow(z.imag,2);
-    iteration++;
+  if (iteration < max_iteration) {
+    /* Comparing with 4 instead of 2 for avoiding unsing the square root */
+    if (z_next_abs > 4) {
+      iteration++;
+    } else {
+      iteration++;
+      iteration = mandelbrotCalc(z_next, c, iteration);
+    }
   }
   return iteration;
 }
 
 void drawSet()
 {
-  /* (x,y) is the pixel coordinate with respect to the center (x0,y0)
-  (xp,yp) is the pixel coordinate with respect to the image corner. */
   int xp, yp, x, y;
   int x0 = round(sizeX / 2);
   int y0 = round(sizeY / 2);
   int iteration = 0;
-  struct complex c;
+  struct complex c, z0 = {0,0};
 
   // Lock surface if needed
   if (SDL_MUSTLOCK(screen))
@@ -72,13 +70,11 @@ void drawSet()
   // g = round(sin(0.024 * i + 2) * 127 + 128);
   // b = round(sin(0.024 * i + 4) * 127 + 128);
 
-  for (xp = 0; xp < sizeX; xp++)
-  {
-    for (yp = 0; yp < sizeY; yp++)
-    {
+  for (xp = 0; xp < sizeX; xp++) {
+    for (yp = 0; yp < sizeY; yp++) {
       x = xp - x0; y = yp - y0;
       c.real = x; c.imag = y;
-      iteration = mandelbrotCalc(c);
+      iteration = mandelbrotCalc(z0, c, iteration);
       if (iteration == 1) {
         putpixel(xp,yp,red);
       } else if (iteration == 2) {
@@ -118,10 +114,8 @@ void render()
   // x=40; y=45; putpixel(x, y, green);
   // x=45; y=50; putpixel(x, y, 0x000000);
   // x=50; y=55; putpixel(x, y, blue);
-  for (x = 0; x < sizeX; x += 1)
-  {
-    for (y = 0; y < sizeY; y += 1)
-    {
+  for (x = 0; x < sizeX; x += 1) {
+    for (y = 0; y < sizeY; y += 1) {
       color = rand() & 0xff;
       color |= (rand() & 0xff) << 8;
       color |= (rand() & 0xff) << 16;
