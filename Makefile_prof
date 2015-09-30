@@ -2,9 +2,9 @@ CC = gcc
 
 # Read the config of SDL using the sdl-config tool
 LIBS = $(shell sdl-config --libs) -lm
-CFLAGS = $(shell sdl-config --cflags) -Iincludes
+CFLAGS = $(shell sdl-config --cflags) -Iincludes -pg
 
-MAIN = main
+MAIN = main_prof
 MAIN_OBJS = main.c #mandelSDLzoom.c
 
 $(MAIN): $(MAIN_OBJS)

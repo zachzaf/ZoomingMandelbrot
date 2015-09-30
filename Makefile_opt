@@ -4,8 +4,8 @@ CC = gcc
 LIBS = $(shell sdl-config --libs) -lm
 CFLAGS = $(shell sdl-config --cflags) -Iincludes
 
-MAIN = main
-MAIN_OBJS = main.c #mandelSDLzoom.c
+MAIN = main_opt
+MAIN_OBJS = main_opt.c #mandelSDLzoom.c
 
 $(MAIN): $(MAIN_OBJS)
 	$(CC) $(CFLAGS) -o $(MAIN) $(MAIN_OBJS) $(LIBS)
